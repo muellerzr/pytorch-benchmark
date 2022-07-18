@@ -9,7 +9,16 @@ entries:
     - output: web,pdf
       title: Overview
       url: /
+    - output: web,pdf
+      title: Imports
+      url: imports.html
+    - output: web,pdf
+      title: PyTorch Preprocessors
+      url: prepare.html
+    - output: web,pdf
+      title: Basic utilities
+      url: utils.html
     output: web
-    title: pytorch-benchmark
+    title: pytorch_benchmark
   output: web
   title: Sidebar

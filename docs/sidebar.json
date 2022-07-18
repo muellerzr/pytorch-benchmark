@@ -1,5 +1,8 @@
 {
-  "pytorch-benchmark": {
-    "Overview": "/"
+  "pytorch_benchmark": {
+    "Overview": "/",
+    "Imports": "imports.html",
+    "PyTorch Preprocessors": "prepare.html",
+    "Basic utilities": "utils.html"
   }
 }
