@@ -139,24 +139,29 @@ def main(
 
         eval_metric = metric.compute()
         metrics.append(eval_metric)
-        # Print only on the main process.
-        if get_process_index() == 0:
-            print(f"epoch {epoch}:", eval_metric)
     if get_process_index() == 0:
         print('---------------------------')
         print('----- Training Report -----')
         print('---------------------------')
+        if torch.cuda.is_available(): 
+            num_devices = torch.cuda.device_count()
+        elif is_tpu_available():
+            num_devices = 8
+        else:
+            num_devices = 1
+        print(f'Number of devices: {num_devices}')
+        print(f'Training device: {"cuda" if not is_tpu_available() else "tpu"}')
         print('Metric by epoch:')
         for i,met in enumerate(metrics):
             print(f'Epoch {i}: {met}')
         print('---------------------------')
         print('Per batch speeds:')
         print('Training:')
-        print(f'Mean: {stats.mean(epoch_train_times):.3f} (ms)')
+        print(f'Mean: {stats.mean(epoch_train_times):.3f} (ms/batch)')
         for i, t in enumerate(epoch_train_times):
-            print(f'Epoch {i}: {t:.3f} (ms)')
+            print(f'Epoch {i}: {t:.3f} (ms/batch)')
         print(f'Evaluation:')
-        print(f'Mean: {stats.mean(epoch_validation_times):.3f} (ms)')
+        print(f'Mean: {stats.mean(epoch_validation_times):.3f} (ms/batch)')
         for i, t in enumerate(epoch_validation_times):
-            print(f'Epoch {i}: {t:.3f} (ms)')
+            print(f'Epoch {i}: {t:.3f} (ms/batch)')
         

@@ -4,6 +4,7 @@ __all__ = ['get_process_index']
 
 # Cell
 from .imports import is_tpu_available, is_multigpu_available
+import os
 
 if is_tpu_available(False):
     import torch_xla.core.xla_model as xm
