@@ -125,6 +125,7 @@ def main(
         validation_times = []
         epoch_validation_times = []
         metrics = []
+        total_time_start = time.perf_counter()
         for epoch in range(num_epochs):
             model.train()
             for step, batch in enumerate(train_dataloader):
@@ -160,6 +161,7 @@ def main(
 
             eval_metric = metric.compute()
             metrics.append(eval_metric)
+        total_time = time.perf_counter() - total_time_start
         if get_process_index() == 0:
             print('-----------------------------------------------------')
             print(f'----- Training Report for Iteration {iteration} ----')
@@ -178,6 +180,7 @@ def main(
                 for key,val in met.items():
                     print(f'\t{key}: {val:.2f}')
             print('---------------------------')
+            print(f'Total training time: {total_time} (s)')
             print('Per batch speeds:')
             print('Training:')
             print(f'Mean: {stats.mean(epoch_train_times):.3f} (ms/batch)')
@@ -200,6 +203,7 @@ def main(
                 "training_device": "cuda" if not is_tpu_available() else "tpu",
                 "metrics": metrics,
                 "speeds": {
+                    "total": total_time,
                     "training": {
                         "mean": stats.mean(epoch_train_times),
                         "times": epoch_train_times
