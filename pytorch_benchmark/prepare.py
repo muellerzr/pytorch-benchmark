@@ -106,5 +106,5 @@ def _prepare_one(obj, first_pass=False):
 
 # Cell
 def prepare_modules(*modules):
-    result = tuple(_prepare_one(obj, first_pass=True) for obj in args)
+    result = tuple(_prepare_one(obj, first_pass=True) for obj in modules)
     return tuple(_prepare_one(obj) for obj in result)
