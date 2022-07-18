@@ -86,12 +86,11 @@ def main(
     if num_iterations < 1:
         num_iterations = 1
     Path(f'reports/nlp_script/{fname}').mkdir(exist_ok=True)
-    for iteration in range(num_iterations):
-        lr, num_epochs, seed, batch_size, eval_batch_size = (
+    lr, num_epochs, seed, batch_size, eval_batch_size = (
             config["lr"], config["num_epochs"], config["seed"], config["train_batch_size"], config["eval_batch_size"]
         )
-        fname = Path(config_file).name.split('.')[0]
-
+    fname = Path(config_file).name.split('.')[0]
+    for iteration in range(num_iterations):
         device = get_device()
         metric = evaluate.load("glue", "mrpc")
 
