@@ -1,5 +1,7 @@
 # My notes and observations as I train
 
+Found a link that talks about scaling the learning rate on multi gpu by NVIDIA [here](https://docs.nvidia.com/clara/tlt-mi_archive/clara-train-sdk-v2.0/nvmidl/appendix/training_with_multiple_gpus.html)
+
 ## Notes from Ross Wightman:
 
 "Have you ever seen TPU final accuracy being lower than that of GPU's?"
