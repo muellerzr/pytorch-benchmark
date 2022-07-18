@@ -13,6 +13,7 @@ from datasets import load_dataset
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, get_linear_schedule_with_warmup, set_seed
 
 import time
+import json
 import statistics as stats
 
 # For gather
@@ -71,6 +72,7 @@ def main(
     seed:int = 42, # A seed
     batch_size:int = 32, # The minibatch size per device during training
     eval_batch_size:int = 64, # The minibatch size per device on eval
+    output_file:str = "report.json" # Where to save the report
 ):
     device = get_device()
     metric = evaluate.load("glue", "mrpc")
@@ -166,4 +168,30 @@ def main(
         print(f'Mean: {stats.mean(epoch_validation_times):.3f} (ms/batch)')
         for i, t in enumerate(epoch_validation_times):
             print(f'Epoch {i}: {t:.3f} (ms/batch)')
+
+        report = {
+            "dataset":"mrpc",
+            "model":"bert-base-cased",
+            "lr":lr,
+            "num_epochs":num_epochs,
+            "seed":seed,
+            "train_batch_size":batch_size,
+            "eval_batch_size":eval_batch_size,
+            "num_devices":num_devices, 
+            "training_device": "cuda" if not is_tpu_available() else "tpu",
+            "metrics": metrics,
+            "speeds": {
+                "training": {
+                    "mean": stats.mean(epoch_train_times),
+                    "times": {epoch_train_times}
+                },
+                "evaluation":{
+                    "mean": stats.mean(epoch_validation_times),
+                    "times": {epoch_validation_times}
+                }
+            }
+        }
+
+        with open(output_file, "w") as outfile:
+            json.dump(report, outfile)
         
