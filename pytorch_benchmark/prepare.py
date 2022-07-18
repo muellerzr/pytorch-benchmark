@@ -53,11 +53,16 @@ class OptimizerInterface(torch.optim.Optimizer):
     @defaults.setter
     def defaults(self, defaults): self.opt.defaults = defaults
 
-    def state_dict(self): return self.opt.state_dict()
+    def state_dict(self):
+        "Passthrough to state dict"
+        return self.opt.state_dict()
 
-    def zero_grad(self): return self.opt.zero_grad()
+    def zero_grad(self):
+        "Passthrough to zero_grad"
+        return self.opt.zero_grad()
 
     def step(self, closure=None):
+        "Passthrough unless on TPU then calls the right stepper"
         if is_tpu_available():
             xm.optimizer_step(self.opt, {})
         self.opt.step(closure)
@@ -106,5 +111,6 @@ def _prepare_one(obj, first_pass=False):
 
 # Cell
 def prepare_modules(*modules):
+    "Prepares a set of modules, supports only PyTorch models, optimizers, and schedulers"
     result = tuple(_prepare_one(obj, first_pass=True) for obj in modules)
     return tuple(_prepare_one(obj) for obj in result)

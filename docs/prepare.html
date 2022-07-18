@@ -58,6 +58,12 @@ nb_path: "nbs/01_prepare.ipynb"
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Preprocessors">Preprocessors<a class="anchor-link" href="#Preprocessors"> </a></h2>
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -148,6 +154,128 @@ nb_path: "nbs/01_prepare.ipynb"
     
 <div class="cell border-box-sizing code_cell rendered">
 
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="prepare_optimizer" class="doc_header"><code>prepare_optimizer</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L71" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_optimizer</code>(<strong><code>opt</code></strong>:<code>Optimizer</code>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="prepare_scheduler" class="doc_header"><code>prepare_scheduler</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L89" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_scheduler</code>(<strong><code>sched</code></strong>:<code>_LRScheduler</code>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="prepare_modules" class="doc_header"><code>prepare_modules</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L113" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_modules</code>(<strong>*<code>modules</code></strong>)</p>
+</blockquote>
+<p>Prepares a set of modules, supports only PyTorch models, optimizers, and schedulers</p>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Interfaces">Interfaces<a class="anchor-link" href="#Interfaces"> </a></h2><p>The interface classes <a href="/pytorch-benchmark/prepare.html#prepare_modules"><code>prepare_modules</code></a> may wrap around</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
 <div class="output_wrapper">
 <div class="output">
 
@@ -173,13 +301,6 @@ nb_path: "nbs/01_prepare.ipynb"
     
 <div class="cell border-box-sizing code_cell rendered">
 
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
 <div class="output_wrapper">
 <div class="output">
 
@@ -187,38 +308,7 @@ nb_path: "nbs/01_prepare.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="prepare_optimizer" class="doc_header"><code>prepare_optimizer</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L66" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_optimizer</code>(<strong><code>opt</code></strong>:<code>Optimizer</code>)</p>
-</blockquote>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-
-<div class="output_markdown rendered_html output_subarea ">
-<h2 id="SchedulerInterface" class="doc_header"><code>class</code> <code>SchedulerInterface</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L72" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>SchedulerInterface</code>(<strong><code>scheduler</code></strong>, <strong><code>num_processes</code></strong>)</p>
+<h2 id="SchedulerInterface" class="doc_header"><code>class</code> <code>SchedulerInterface</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L77" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>SchedulerInterface</code>(<strong><code>scheduler</code></strong>, <strong><code>num_processes</code></strong>)</p>
 </blockquote>
 <p>Wrapper to step the scheduler the right number of times</p>
 
@@ -232,82 +322,6 @@ nb_path: "nbs/01_prepare.ipynb"
 </div>
     {% endraw %}
 
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-
-<div class="output_markdown rendered_html output_subarea ">
-<h4 id="prepare_scheduler" class="doc_header"><code>prepare_scheduler</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L84" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_scheduler</code>(<strong><code>sched</code></strong>:<code>_LRScheduler</code>)</p>
-</blockquote>
-
 </div>
 
-</div>
-
-</div>
-</div>
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-
-<div class="output_markdown rendered_html output_subarea ">
-<h4 id="prepare_modules" class="doc_header"><code>prepare_modules</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L108" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_modules</code>(<strong>*<code>modules</code></strong>)</p>
-</blockquote>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-</div>
-    {% endraw %}
-
-</div>
- 
 

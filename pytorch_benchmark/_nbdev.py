@@ -12,13 +12,13 @@ index = {"is_tpu_available": "00_imports.ipynb",
          "SchedulerInterface": "01_prepare.ipynb",
          "prepare_scheduler": "01_prepare.ipynb",
          "prepare_modules": "01_prepare.ipynb",
-         "get_process_index": "utils.ipynb"}
+         "get_process_index": "02_utils.ipynb"}
 
 modules = ["imports.py",
            "prepare.py",
            "utils.py"]
 
-doc_url = "https://muellerzr.github.io/pytorch_benchmark/"
+doc_url = "https://muellerzr.github.io/pytorch-benchmark/"
 
 git_url = "https://github.com/muellerzr/pytorch-benchmark/"
 
