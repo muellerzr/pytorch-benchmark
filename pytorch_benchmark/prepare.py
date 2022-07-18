@@ -53,9 +53,9 @@ class OptimizerInterface(torch.optim.Optimizer):
     @defaults.setter
     def defaults(self, defaults): self.opt.defaults = defaults
 
-    def state_dict(self): return self.optimizer.state_dict()
+    def state_dict(self): return self.opt.state_dict()
 
-    def zero_grad(self): return self.optimizer.zero_grad()
+    def zero_grad(self): return self.opt.zero_grad()
 
     def step(self, closure=None):
         if is_tpu_available():
