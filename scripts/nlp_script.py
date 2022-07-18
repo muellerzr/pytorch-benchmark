@@ -113,7 +113,7 @@ def main(
             outputs.loss.backward()
             optimizer.step()
             lr_scheduler.step()
-            optimizer.zero_grad(0)
+            optimizer.zero_grad()
             end_time = time.perf_counter()
             train_times.append(end_time - start_time)
         epoch_train_times.append(stats.mean(train_times))
