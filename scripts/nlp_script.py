@@ -233,7 +233,7 @@ def main(
                 }
             }
             with open(f'reports/nlp_script/{typ}_{fname}/run_{iteration}.json', "w") as outfile:
-                json.dump(report, outfile)
+                json.dump(report, outfile, indent=4)
 
             print(f'Report saved to reports/nlp_script/{typ}_{fname}/run_{iteration}.json')
         del model, optimizer, train_dataloader, eval_dataloader, lr_scheduler
