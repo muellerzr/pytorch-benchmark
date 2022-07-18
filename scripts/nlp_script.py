@@ -8,11 +8,15 @@ from fastcore.script import call_parse
 import evaluate
 from pytorch_benchmark import prepare_modules, get_device, is_tpu_available, get_process_index
 from accelerate.utils import gather
+from accelerate import Accelerator
 from datasets import load_dataset
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, get_linear_schedule_with_warmup, set_seed
 
 import time
 import statistics as stats
+
+# For gather
+_ = Accelerator()
 
 
 def get_dataloaders(batch_size: int = 16, eval_batch_size:int = 32):
