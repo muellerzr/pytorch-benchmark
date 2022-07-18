@@ -99,7 +99,7 @@ def _prepare_one(obj, first_pass=False):
         if isinstance(obj, torch.nn.Module):
             return prepare_model(obj)
         elif isinstance(obj, torch.optim.Optimizer):
-            return prepare_optimizer(optimizer)
+            return prepare_optimizer(obj)
     elif isinstance(obj, torch.optim.lr_scheduler._LRScheduler):
         return prepare_scheduler(obj)
     return obj
