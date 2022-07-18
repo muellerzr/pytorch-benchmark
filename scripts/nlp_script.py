@@ -183,11 +183,11 @@ def main(
             "speeds": {
                 "training": {
                     "mean": stats.mean(epoch_train_times),
-                    "times": {epoch_train_times}
+                    "times": epoch_train_times
                 },
                 "evaluation":{
                     "mean": stats.mean(epoch_validation_times),
-                    "times": {epoch_validation_times}
+                    "times": epoch_validation_times
                 }
             }
         }
