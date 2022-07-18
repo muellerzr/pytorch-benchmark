@@ -108,8 +108,8 @@ def main(
             outputs = model(**batch)
             outputs.loss.backward()
             end_time = time.perf_counter()
-            train_times.append(end_time - start_time())
-        epoch_train_times.append(mean(train_times))
+            train_times.append(end_time - start_time)
+        epoch_train_times.append(stats.mean(train_times))
         train_times = []
 
         model.eval()
@@ -121,13 +121,13 @@ def main(
                 outputs = model(**batch)
             predictions = outputs.logits.argmax(dim=-1)
             end_time = time.perf_counter()
-            validation_times.append(end_time - start_time())
+            validation_times.append(end_time - start_time)
             predictions, references = gather((predictions, batch["labels"]))
             metric.add_batch(
                 predictions=predictions,
                 references=references,
             )
-        epoch_validation_times.append(mean(validation_times))
+        epoch_validation_times.append(stats.mean(validation_times))
         validation_times = []
 
         eval_metric = metric.compute()
@@ -145,11 +145,11 @@ def main(
         print('---------------------------')
         print('Per batch speeds:')
         print('Training:')
-        print(f'Mean: {mean(epoch_train_times):.3f} (ms)')
+        print(f'Mean: {stats.mean(epoch_train_times):.3f} (ms)')
         for i, t in enumerate(epoch_train_times):
             print(f'Epoch {i}: {t:.3f} (ms)')
         print(f'Evaluation:')
-        print(f'Mean: {mean(epoch_validation_times):.3f} (ms)')
+        print(f'Mean: {stats.mean(epoch_validation_times):.3f} (ms)')
         for i, t in enumerate(epoch_validation_times):
             print(f'Epoch {i}: {t:.3f} (ms)')
         
