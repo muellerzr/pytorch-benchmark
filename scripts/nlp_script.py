@@ -15,13 +15,15 @@ import time
 import statistics as stats
 
 
-def get_dataloaders(batch_size: int = 16):
+def get_dataloaders(batch_size: int = 16, eval_batch_size:int = 32):
     """
     Creates a set of `DataLoader`s for the `glue` dataset,
     using "bert-base-cased" as the tokenizer.
     Args:
         batch_size (`int`, *optional*):
-            The batch size for the train and validation DataLoaders.
+            The batch size for the trainining DataLoader.
+        batch_size (`int`, *optional*):
+            The batch size for the validation DataLoader.
     """
     tokenizer = AutoTokenizer.from_pretrained("bert-base-cased")
     datasets = load_dataset("glue", "mrpc")
@@ -53,7 +55,7 @@ def get_dataloaders(batch_size: int = 16):
         tokenized_datasets["train"], shuffle=True, collate_fn=collate_fn, batch_size=batch_size
     )
     eval_dataloader = DataLoader(
-        tokenized_datasets["validation"], shuffle=False, collate_fn=collate_fn, batch_size=EVAL_BATCH_SIZE
+        tokenized_datasets["validation"], shuffle=False, collate_fn=collate_fn, batch_size=eval_batch_size
     )
 
     return train_dataloader, eval_dataloader
@@ -63,13 +65,14 @@ def main(
     lr:float = 2e-5, # A learning rate
     num_epochs:int = 5, # The number of epochs to train for
     seed:int = 42, # A seed
-    batch_size:int = 64, # The minibatch size per device
+    batch_size:int = 32, # The minibatch size per device during training
+    eval_batch_size:int = 64, # The minibatch size per device on eval
 ):
     device = get_device()
     metric = evaluate.load("glue", "mrpc")
 
     set_seed(seed)
-    train_dataloader, eval_dataloader = get_dataloaders(batch_size)
+    train_dataloader, eval_dataloader = get_dataloaders(batch_size, eval_batch_size)
     # Instantiate the model (we build the model here so that the seed also control new weights initialization)
     model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", return_dict=True)
     model = model.to(device)
