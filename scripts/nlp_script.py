@@ -7,13 +7,14 @@ from fastcore.script import call_parse
 
 import evaluate
 from pytorch_benchmark import prepare_modules, get_device, is_tpu_available, get_process_index
-from accelerate.utils import gather
+from accelerate.utils import gather, convert_outputs_to_fp32
 from accelerate import Accelerator
 from datasets import load_dataset
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, get_linear_schedule_with_warmup, set_seed
 
 import time
 import json
+import os
 import yaml
 import statistics as stats
 from pathlib import Path
@@ -77,7 +78,18 @@ def main(
     config_file:str, # Location of the config file
     num_iterations:int = 3, # Number of times to run benchmark
     change_seed:bool = True, # Whether to change the seed each iteration
+    mixed_precision:str=None, # Type of mixed precision to use
+    downcast:bool=False, # Whether to downcast bf16 to bf32
 ):
+    if mixed_precision == "bf16" and is_tpu_available():
+        if not downcast: 
+            os.environ["XLA_USE_BF16"] = str(1)
+            os.environ["XLA_DOWNCAST_BF16"] = str(0)
+        else:
+            os.environ["XLA_USE_BF16"] = str(0)
+            os.environ["XLA_DOWNCAST_BF16"] = str(1)
+    else:
+        raise ValueError("Must use `bf16` on TPUs")
     with open(config_file, 'r') as stream:
         config = yaml.safe_load(stream)
     for k,v in config.items():
@@ -119,6 +131,9 @@ def main(
             model, optimizer, lr_scheduler
         )
 
+        if mixed_precision == "fp16" and torch.cuda.is_available():
+            model.forward = torch.cuda.amp.autocast(dtype=torch.float16)(model.forward)
+            model.forward = convert_outputs_to_fp32(model.forward)
         # Now we train the model
         train_times = []
         epoch_train_times = []
