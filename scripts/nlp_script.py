@@ -17,7 +17,7 @@ import json
 import statistics as stats
 
 # For gather
-_ = Accelerator()
+accelerator = Accelerator()
 
 
 def get_dataloaders(batch_size: int = 16, eval_batch_size:int = 32):

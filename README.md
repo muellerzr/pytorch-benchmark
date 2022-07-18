@@ -10,7 +10,7 @@ Given this is a small benchmark library, I will not be releasing it on pypi and 
 
 `pip install git+https://github.com/muellerzr/pytorch-benchmark`
 
-It uses barebones dependencies, and relies on Accelerate only for basic utility functions (such as gather). I implement my own small version of the main wrapper classes for the sake of simplicity. 
+It uses barebones dependencies, and relies on Accelerate only for basic utility functions (such as `gather` and `accelerate launch`). I implement my own small version of the main wrapper classes for the sake of simplicity. 
 
 ## How to use
 

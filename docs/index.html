@@ -40,7 +40,7 @@ nb_path: "nbs/index.ipynb"
 <p>The main library contains a smaller version of <a href="https://github.com/huggingface/accelerate">Accelerate</a> aimed at only wrapping the bare minimum needed to note performance gains from each of the three distributed platforms (GPU, multi-GPU, and TPU).</p>
 <p>Given this is a small benchmark library, I will not be releasing it on pypi and instead you should install from main:</p>
 <p><code>pip install git+https://github.com/muellerzr/pytorch-benchmark</code></p>
-<p>It uses barebones dependencies, and relies on Accelerate only for basic utility functions (such as gather). I implement my own small version of the main wrapper classes for the sake of simplicity.</p>
+<p>It uses barebones dependencies, and relies on Accelerate only for basic utility functions (such as <code>gather</code> and <code>accelerate launch</code>). I implement my own small version of the main wrapper classes for the sake of simplicity.</p>
 
 </div>
 </div>
