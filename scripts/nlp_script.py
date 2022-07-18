@@ -194,4 +194,6 @@ def main(
 
         with open(output_file, "w") as outfile:
             json.dump(report, outfile)
+
+        print(f'Report saved to {output_file}')
         
