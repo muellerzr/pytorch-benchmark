@@ -153,7 +153,9 @@ def main(
         print(f'Training device: {"cuda" if not is_tpu_available() else "tpu"}')
         print('Metric by epoch:')
         for i,met in enumerate(metrics):
-            print(f'Epoch {i}: {met}')
+            print(f'Epoch {i}:')
+            for key,val in met.items():
+                print('\t',key,':\t',val)
         print('---------------------------')
         print('Per batch speeds:')
         print('Training:')
