@@ -57,7 +57,7 @@ class OptimizerInterface(torch.optim.Optimizer):
 
     def zero_grad(self): return self.optimizer.zero_grad()
 
-    def step(closure=None):
+    def step(self, closure=None):
         if is_tpu_available():
             xm.optimizer_step(self.opt, {})
         self.opt.step(closure)
