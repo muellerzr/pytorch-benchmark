@@ -1,0 +1,5 @@
+train_batch_size: 32
+eval_batch_size: 64
+seed: 42
+num_epochs: 3
+lr: 4e-5
