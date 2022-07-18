@@ -78,26 +78,29 @@ def main(
     config_file:str, # Location of the config file
     num_iterations:int = 3, # Number of times to run benchmark
     change_seed:bool = True, # Whether to change the seed each iteration
-    mixed_precision:str=None, # Type of mixed precision to use
-    downcast:bool=False, # Whether to downcast bf16 to bf32
 ):
-    if mixed_precision == "bf16" and is_tpu_available():
-        if not downcast: 
-            os.environ["XLA_USE_BF16"] = str(1)
-            os.environ["XLA_DOWNCAST_BF16"] = str(0)
-        else:
-            os.environ["XLA_USE_BF16"] = str(0)
-            os.environ["XLA_DOWNCAST_BF16"] = str(1)
-    else:
-        raise ValueError("Must use `bf16` on TPUs")
     with open(config_file, 'r') as stream:
         config = yaml.safe_load(stream)
     for k,v in config.items():
-        config[k] = float(v) if k == "lr" else int(v)
+        if k != "mixed_precision":
+            config[k] = float(v) if k == "lr" else int(v)
+    if config.get("mixed_precision", False) == "bf16":
+        if is_tpu_available():
+            if not downcast: 
+                os.environ["XLA_USE_BF16"] = str(1)
+                os.environ["XLA_DOWNCAST_BF16"] = str(0)
+            else:
+                os.environ["XLA_USE_BF16"] = str(0)
+                os.environ["XLA_DOWNCAST_BF16"] = str(1)
+        else:
+            raise ValueError("Must use `bf16` on TPUs")
+
     fname = Path(config_file).name.split('.')[0]
+    typ = Path(config_file).parent.name
+
     if num_iterations < 1:
         num_iterations = 1
-    Path(f'reports/nlp_script/{fname}').mkdir(exist_ok=True)
+    Path(f'reports/nlp_script/{typ}_{fname}').mkdir(exist_ok=True)
     lr, num_epochs, seed, batch_size, eval_batch_size = (
             config["lr"], config["num_epochs"], config["seed"], config["train_batch_size"], config["eval_batch_size"]
         )
@@ -131,7 +134,7 @@ def main(
             model, optimizer, lr_scheduler
         )
 
-        if mixed_precision == "fp16" and torch.cuda.is_available():
+        if config.get("mixed_precision", False) == "fp16" and torch.cuda.is_available():
             model.forward = torch.cuda.amp.autocast(dtype=torch.float16)(model.forward)
             model.forward = convert_outputs_to_fp32(model.forward)
         # Now we train the model
@@ -229,9 +232,9 @@ def main(
                     }
                 }
             }
-            with open(f'reports/nlp_script/{fname}/run_{iteration}.json', "w") as outfile:
+            with open(f'reports/nlp_script/{typ}_{fname}/run_{iteration}.json', "w") as outfile:
                 json.dump(report, outfile)
 
-            print(f'Report saved to reports/nlp_script/{fname}/run_{iteration}.json')
+            print(f'Report saved to reports/nlp_script/{typ}_{fname}/run_{iteration}.json')
         del model, optimizer, train_dataloader, eval_dataloader, lr_scheduler
         clear_memory()

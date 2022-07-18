@@ -1,0 +1,6 @@
+train_batch_size: 32
+eval_batch_size: 64
+seed: 42
+num_epochs: 3
+lr: 2e-5
+mixed_precision: "fp16"
