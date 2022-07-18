@@ -155,7 +155,7 @@ def main(
         for i,met in enumerate(metrics):
             print(f'Epoch {i}:')
             for key,val in met.items():
-                print('\t',key,':\t',val)
+                print(f'\t{key}:\t\t{val:.2f}')
         print('---------------------------')
         print('Per batch speeds:')
         print('Training:')
