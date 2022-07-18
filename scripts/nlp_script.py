@@ -67,7 +67,7 @@ def get_dataloaders(batch_size: int = 16, eval_batch_size:int = 32):
 @call_parse
 def main(
     lr:float = 2e-5, # A learning rate
-    num_epochs:int = 5, # The number of epochs to train for
+    num_epochs:int = 3, # The number of epochs to train for
     seed:int = 42, # A seed
     batch_size:int = 32, # The minibatch size per device during training
     eval_batch_size:int = 64, # The minibatch size per device on eval
