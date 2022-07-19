@@ -112,7 +112,6 @@ def main(
         metric = evaluate.load("glue", "mrpc")
 
         set_seed(seed)
-        seed += 100
         train_dataloader, eval_dataloader = get_dataloaders(batch_size, eval_batch_size)
         # Instantiate the model (we build the model here so that the seed also control new weights initialization)
         model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", return_dict=True)
@@ -253,3 +252,4 @@ def main(
             print(f'Report saved to reports/nlp_script/{typ}_{fname}/run_{iteration}.json')
         del model, optimizer, train_dataloader, eval_dataloader, lr_scheduler
         clear_memory()
+        seed += 100
