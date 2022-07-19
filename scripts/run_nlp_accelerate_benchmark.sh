@@ -21,3 +21,6 @@
 # accelerate launch nlp_script_accelerate.py configs/nlp_script/tpu/adjusted_bs_mixed_precision.yml
 # accelerate launch nlp_script_accelerate.py configs/nlp_script/tpu/adjusted_bs_eightfold_lr.yml
 # accelerate launch nlp_script_accelerate.py configs/nlp_script/tpu/adjusted_bs_eightfold_lr_mixed_precision.yml
+# XLA_USE_BF16=0 XLA_DOWNCAST_BF16=1 accelerate launch nlp_script_accelerate.py configs/nlp_script/tpu/mixed_precision_downcast.yml
+# XLA_USE_BF16=0 XLA_DOWNCAST_BF16=1 accelerate launch nlp_script_accelerate.py configs/nlp_script/tpu/adjusted_bs_mixed_precision_downcast.yml
+# XLA_USE_BF16=0 XLA_DOWNCAST_BF16=1 accelerate launch nlp_script_accelerate.py configs/nlp_script/tpu/adjusted_bs_eightfold_lr_mixed_precision_downcast.yml
