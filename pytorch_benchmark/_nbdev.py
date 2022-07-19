@@ -13,7 +13,8 @@ index = {"is_tpu_available": "00_imports.ipynb",
          "prepare_modules": "01_prepare.ipynb",
          "get_rank": "02_utils.ipynb",
          "get_device": "02_utils.ipynb",
-         "get_process_index": "02_utils.ipynb"}
+         "get_process_index": "02_utils.ipynb",
+         "num_processes": "02_utils.ipynb"}
 
 modules = ["imports.py",
            "prepare.py",

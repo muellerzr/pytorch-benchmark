@@ -46,6 +46,14 @@ class OptimizerInterface(torch.optim.Optimizer):
     @defaults.setter
     def defaults(self, defaults): self.opt.defaults = defaults
 
+    @property
+    def param_groups(self):
+        return self.opt.param_groups
+
+    @param_groups.setter
+    def param_groups(self, param_groups):
+        self.opt.param_groups = param_groups
+
     def state_dict(self):
         "Passthrough to state dict"
         return self.opt.state_dict()

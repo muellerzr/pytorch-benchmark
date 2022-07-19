@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from fastcore.script import call_parse
 
 import evaluate
-from pytorch_benchmark import prepare_modules, get_device, is_tpu_available, get_process_index
+from pytorch_benchmark import prepare_modules, get_device, is_tpu_available, get_process_index, num_processes
 from accelerate.utils import gather, convert_outputs_to_fp32
 from accelerate import Accelerator
 from datasets import load_dataset
@@ -25,7 +25,7 @@ def clear_memory():
         torch.cuda.empty_cache()
 
 # For gather
-accelerator = Accelerator()
+_ = Accelerator()
 
 
 def get_dataloaders(batch_size: int = 16, eval_batch_size:int = 32):
@@ -137,6 +137,10 @@ def main(
         if config.get("mixed_precision", False) == "fp16" and torch.cuda.is_available():
             model.forward = torch.cuda.amp.autocast(dtype=torch.float16)(model.forward)
             model.forward = convert_outputs_to_fp32(model.forward)
+            ctx = torch.cuda.amp.autocast
+        else:
+            import contextlib
+            ctx = contextlib.nullcontext
         # Now we train the model
         train_times = []
         epoch_train_times = []
@@ -149,13 +153,16 @@ def main(
             for step, batch in enumerate(train_dataloader):
                 start_time = time.perf_counter()
                 batch.to(device)
-                outputs = model(**batch)
-                loss = outputs.loss
+                with ctx():
+                    outputs = model(**batch)
+                    loss = outputs.loss
                 if config.get("mixed_precision", False) == "fp16":
-                    scaler.scale(loss).backward(**kwargs)
+                    scaler.scale(loss).backward()
+                    scaler.step(optimizer)
+                    scaler.update()
                 else:
                     loss.backward()
-                optimizer.step()
+                    optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
                 end_time = time.perf_counter()
@@ -175,7 +182,7 @@ def main(
                 end_time = time.perf_counter()
                 validation_times.append(end_time - start_time)
                 predictions, references = gather((predictions, batch["labels"]))
-                if accelerator.use_distributed:
+                if num_processes() > 1:
                     # Then see if we're on the last batch of our eval dataloader
                     if step == len(eval_dataloader) - 1:
                         # Last batch needs to be truncated on distributed systems as it contains additional samples
