@@ -79,7 +79,6 @@ def main(
     for k,v in config.items():
         if k != "mixed_precision":
             config[k] = float(v) if k == "lr" else int(v)
-    accelerator = Accelerator(mixed_precision=config.get("mixed_precision", None))
 
     fname = Path(config_file).name.split('.')[0]
     typ = Path(config_file).parent.name
@@ -93,6 +92,7 @@ def main(
     fname = Path(config_file).name.split('.')[0]
     
     for iteration in range(num_iterations):
+        accelerator = Accelerator(mixed_precision=config.get("mixed_precision", None))
         metric = evaluate.load("glue", "mrpc")
 
         set_seed(seed)
@@ -230,6 +230,6 @@ def main(
                 json.dump(report, outfile, indent=4)
 
             print(f'Report saved to reports/nlp_script_accelerate/{typ}_{fname}/run_{iteration}.json')
-        del model, optimizer, train_dataloader, eval_dataloader, lr_scheduler
+        del model, optimizer, train_dataloader, eval_dataloader, lr_scheduler, accelerator
         clear_memory()
         seed += 100
