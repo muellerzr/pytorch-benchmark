@@ -9,6 +9,7 @@ Tech Used:
 - CUDA version: 10.2
 - Accelerate version: 0.11.0
 - For single and multi-gpu tests, two Tesla T4's were used from GCP.
+- For TPU tests TPUv2 from Google Colab was used
 
 ## Available Reports:
 
