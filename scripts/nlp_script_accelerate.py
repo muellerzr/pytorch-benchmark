@@ -6,9 +6,8 @@ from torch.utils.data import DataLoader
 from fastcore.script import call_parse
 
 import evaluate
-from pytorch_benchmark import prepare_modules, get_device, is_tpu_available, get_process_index
-from accelerate.utils import gather, convert_outputs_to_fp32
 from accelerate import Accelerator
+from accelerate.utils import DistributedType, is_tpu_available
 from datasets import load_dataset
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, get_linear_schedule_with_warmup, set_seed
 
@@ -24,11 +23,8 @@ def clear_memory():
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
-# For gather
-accelerator = Accelerator()
 
-
-def get_dataloaders(batch_size: int = 16, eval_batch_size:int = 32):
+def get_dataloaders(accelerator, batch_size: int = 16, eval_batch_size:int = 32):
     """
     Creates a set of `DataLoader`s for the `glue` dataset,
     using "bert-base-cased" as the tokenizer.
@@ -59,7 +55,7 @@ def get_dataloaders(batch_size: int = 16, eval_batch_size:int = 32):
 
     def collate_fn(examples):
         # On TPU it's best to pad everything to the same length or training will be very slow.
-        if is_tpu_available():
+        if accelerator.distributed_type == DistributedType.TPU:
             return tokenizer.pad(examples, padding="max_length", max_length=128, return_tensors="pt")
         return tokenizer.pad(examples, padding="longest", return_tensors="pt")
 
@@ -83,40 +79,27 @@ def main(
     for k,v in config.items():
         if k != "mixed_precision":
             config[k] = float(v) if k == "lr" else int(v)
-    if config.get("mixed_precision", False) == "bf16":
-        if is_tpu_available():
-            if not downcast: 
-                os.environ["XLA_USE_BF16"] = str(1)
-                os.environ["XLA_DOWNCAST_BF16"] = str(0)
-            else:
-                os.environ["XLA_USE_BF16"] = str(0)
-                os.environ["XLA_DOWNCAST_BF16"] = str(1)
-        else:
-            raise ValueError("Must use `bf16` on TPUs")
+    accelerator = Accelerator(mixed_precision=config.get("mixed_precision", None))
 
     fname = Path(config_file).name.split('.')[0]
     typ = Path(config_file).parent.name
 
     if num_iterations < 1:
         num_iterations = 1
-    Path(f'reports/nlp_script/{typ}_{fname}').mkdir(exist_ok=True)
+    Path(f'reports/nlp_script_accelerate/{typ}_{fname}').mkdir(exist_ok=True)
     lr, num_epochs, seed, batch_size, eval_batch_size = (
             config["lr"], config["num_epochs"], config["seed"], config["train_batch_size"], config["eval_batch_size"]
     )
     fname = Path(config_file).name.split('.')[0]
     
     for iteration in range(num_iterations):
-        device = get_device()
-        if config.get("mixed_precision", False) == "fp16":
-            scaler = torch.cuda.amp.GradScaler()
         metric = evaluate.load("glue", "mrpc")
 
         set_seed(seed)
         seed += 100
-        train_dataloader, eval_dataloader = get_dataloaders(batch_size, eval_batch_size)
+        train_dataloader, eval_dataloader = get_dataloaders(accelerator, batch_size, eval_batch_size)
         # Instantiate the model (we build the model here so that the seed also control new weights initialization)
         model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", return_dict=True)
-        model = model.to(device)
 
         # Instantiate optimizer
         optimizer = AdamW(params=model.parameters(), lr=lr)
@@ -131,13 +114,10 @@ def main(
         # Prepare everything
         # There is no specific order to remember, we just need to unpack the objects in the same order we gave them to the
         # prepare method.
-        model, optimizer, lr_scheduler = prepare_modules(
-            model, optimizer, lr_scheduler
+        model, optimizer, lr_scheduler, train_dataloader, eval_dataloader = accelerator.prepare(
+            model, optimizer, lr_scheduler, train_dataloader, eval_dataloader
         )
 
-        if config.get("mixed_precision", False) == "fp16" and torch.cuda.is_available():
-            model.forward = torch.cuda.amp.autocast(dtype=torch.float16)(model.forward)
-            model.forward = convert_outputs_to_fp32(model.forward)
         # Now we train the model
         train_times = []
         epoch_train_times = []
@@ -149,13 +129,9 @@ def main(
             model.train()
             for step, batch in enumerate(train_dataloader):
                 start_time = time.perf_counter()
-                batch.to(device)
                 outputs = model(**batch)
                 loss = outputs.loss
-                if config.get("mixed_precision", False) == "fp16":
-                    scaler.scale(loss).backward(**kwargs)
-                else:
-                    loss.backward()
+                accelerator.backward(loss)
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
@@ -168,14 +144,12 @@ def main(
             samples_seen = 0
             for step, batch in enumerate(eval_dataloader):
                 start_time = time.perf_counter()
-                # We could avoid this line since we set the accelerator with `device_placement=True`.
-                batch.to(device)
                 with torch.no_grad():
                     outputs = model(**batch)
                 predictions = outputs.logits.argmax(dim=-1)
                 end_time = time.perf_counter()
                 validation_times.append(end_time - start_time)
-                predictions, references = gather((predictions, batch["labels"]))
+                predictions, references = accelerator.gather((predictions, batch["labels"]))
                 if accelerator.use_distributed:
                     # Then see if we're on the last batch of our eval dataloader
                     if step == len(eval_dataloader) - 1:
@@ -195,7 +169,7 @@ def main(
             eval_metric = metric.compute()
             metrics.append(eval_metric)
         total_time = time.perf_counter() - total_time_start
-        if get_process_index() == 0:
+        if accelerator.local_process_index == 0:
             print('-----------------------------------------------------')
             print(f'----- Training Report for Iteration {iteration} ----')
             print('-----------------------------------------------------')
@@ -247,9 +221,9 @@ def main(
                     }
                 }
             }
-            with open(f'reports/nlp_script/{typ}_{fname}/run_{iteration}.json', "w") as outfile:
+            with open(f'reports/nlp_script_accelerate/{typ}_{fname}/run_{iteration}.json', "w") as outfile:
                 json.dump(report, outfile, indent=4)
 
-            print(f'Report saved to reports/nlp_script/{typ}_{fname}/run_{iteration}.json')
+            print(f'Report saved to reports/nlp_script_accelerate/{typ}_{fname}/run_{iteration}.json')
         del model, optimizer, train_dataloader, eval_dataloader, lr_scheduler
         clear_memory()
