@@ -153,8 +153,14 @@ def main(
                     # Then see if we're on the last batch of our eval dataloader
                     if step == len(eval_dataloader) - 1:
                         # Last batch needs to be truncated on distributed systems as it contains additional samples
-                        predictions = predictions[: len(eval_dataloader.dataset) - samples_seen]
-                        references = references[: len(eval_dataloader.dataset) - samples_seen]
+                        if hasattr(eval_dataloader, "dataset"):
+                            dataset_length = len(eval_dataloader.dataset)
+                        elif hasattr(eval_dataloader, "_loader"):
+                            dataset_length = len(eval_dataloader._loader.dataset)
+                        else:
+                            raise ValueError("Unsupported dataloader type")
+                        predictions = predictions[: dataset_length - samples_seen]
+                        references = references[: dataset_length - samples_seen]
                     else:
                         # Otherwise we add the number of samples seen
                         samples_seen += references.shape[0]
