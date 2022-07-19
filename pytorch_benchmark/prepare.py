@@ -81,6 +81,7 @@ class SchedulerInterface:
         self.num_processes = num_processes
 
     def step(self, *args, **kwargs):
+        "Passthrough to `scheduler.step` but will also step the right number of times"
         for _ in range(self.num_processes):
             if getattr(self.scheduler, "total_steps", 0) <= self.scheduler.last_epoch:
                 self.scheduler.step(*args, **kwargs)
