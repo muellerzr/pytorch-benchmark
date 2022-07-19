@@ -77,7 +77,6 @@ def get_dataloaders(batch_size: int = 16, eval_batch_size:int = 32):
 def main(
     config_file:str, # Location of the config file
     num_iterations:int = 3, # Number of times to run benchmark
-    change_seed:bool = True, # Whether to change the seed each iteration
 ):
     with open(config_file, 'r') as stream:
         config = yaml.safe_load(stream)
@@ -110,8 +109,7 @@ def main(
         metric = evaluate.load("glue", "mrpc")
 
         set_seed(seed)
-        if change_seed:
-            seed += 1
+        seed += 100
         train_dataloader, eval_dataloader = get_dataloaders(batch_size, eval_batch_size)
         # Instantiate the model (we build the model here so that the seed also control new weights initialization)
         model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", return_dict=True)
