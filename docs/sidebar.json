@@ -3,6 +3,7 @@
     "Overview": "/",
     "Imports": "imports.html",
     "PyTorch Preprocessors": "prepare.html",
-    "Basic utilities": "utils.html"
+    "Basic utilities": "utils.html",
+    "EDA": "eda.html"
   }
 }

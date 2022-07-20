@@ -18,6 +18,9 @@ entries:
     - output: web,pdf
       title: Basic utilities
       url: utils.html
+    - output: web,pdf
+      title: EDA
+      url: eda.html
     output: web
     title: pytorch_benchmark
   output: web

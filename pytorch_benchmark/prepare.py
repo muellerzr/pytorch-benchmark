@@ -12,6 +12,7 @@ import os, torch
 from torch import nn
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import DataLoader
+from accelerate.data_loader import prepare_data_loader
 
 if is_tpu_available(check_device=False):
     import torch_xla.distributed.xla_multiprocessing as xmp
@@ -107,6 +108,8 @@ def _prepare_one(obj, first_pass=False):
             return prepare_model(obj)
         elif isinstance(obj, torch.optim.Optimizer):
             return prepare_optimizer(obj)
+        elif isinstance(obj, DataLoader):
+            return prepare_data_loader(obj)
     elif isinstance(obj, torch.optim.lr_scheduler._LRScheduler):
         return prepare_scheduler(obj)
     return obj

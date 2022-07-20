@@ -51,13 +51,6 @@ nb_path: "nbs/01_prepare.ipynb"
 </div>
     {% endraw %}
 
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-</div>
-    {% endraw %}
-
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Preprocessors">Preprocessors<a class="anchor-link" href="#Preprocessors"> </a></h2>
@@ -75,38 +68,7 @@ nb_path: "nbs/01_prepare.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="get_device" class="doc_header"><code>get_device</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L21" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>get_device</code>()</p>
-</blockquote>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-
-<div class="output_markdown rendered_html output_subarea ">
-<h4 id="prepare_model" class="doc_header"><code>prepare_model</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L27" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_model</code>(<strong><code>model</code></strong>:<code>Module</code>, <strong>**<code>kwargs</code></strong>)</p>
+<h4 id="prepare_model" class="doc_header"><code>prepare_model</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L20" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_model</code>(<strong><code>model</code></strong>:<code>Module</code>, <strong>**<code>kwargs</code></strong>)</p>
 </blockquote>
 <p>Prepares a model for distributed training. kwargs are sent to DDP</p>
 <table>
@@ -168,7 +130,7 @@ nb_path: "nbs/01_prepare.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="prepare_optimizer" class="doc_header"><code>prepare_optimizer</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L71" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_optimizer</code>(<strong><code>opt</code></strong>:<code>Optimizer</code>)</p>
+<h4 id="prepare_optimizer" class="doc_header"><code>prepare_optimizer</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L72" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_optimizer</code>(<strong><code>opt</code></strong>:<code>Optimizer</code>)</p>
 </blockquote>
 
 </div>
@@ -206,7 +168,7 @@ nb_path: "nbs/01_prepare.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="prepare_scheduler" class="doc_header"><code>prepare_scheduler</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L89" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_scheduler</code>(<strong><code>sched</code></strong>:<code>_LRScheduler</code>)</p>
+<h4 id="prepare_scheduler" class="doc_header"><code>prepare_scheduler</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L91" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_scheduler</code>(<strong><code>sched</code></strong>:<code>_LRScheduler</code>)</p>
 </blockquote>
 
 </div>
@@ -244,7 +206,7 @@ nb_path: "nbs/01_prepare.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="prepare_modules" class="doc_header"><code>prepare_modules</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L113" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_modules</code>(<strong>*<code>modules</code></strong>)</p>
+<h4 id="prepare_modules" class="doc_header"><code>prepare_modules</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L115" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>prepare_modules</code>(<strong>*<code>modules</code></strong>)</p>
 </blockquote>
 <p>Prepares a set of modules, supports only PyTorch models, optimizers, and schedulers</p>
 
@@ -283,7 +245,7 @@ nb_path: "nbs/01_prepare.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="OptimizerInterface" class="doc_header"><code>class</code> <code>OptimizerInterface</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L39" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>OptimizerInterface</code>(<strong><code>optimizer</code></strong>) :: <code>Optimizer</code></p>
+<h2 id="OptimizerInterface" class="doc_header"><code>class</code> <code>OptimizerInterface</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L32" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>OptimizerInterface</code>(<strong><code>optimizer</code></strong>) :: <code>Optimizer</code></p>
 </blockquote>
 <p>Basic optimizer wrapper that performs the right step call for TPU</p>
 
@@ -308,7 +270,7 @@ nb_path: "nbs/01_prepare.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="OptimizerInterface.state_dict" class="doc_header"><code>OptimizerInterface.state_dict</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L56" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>OptimizerInterface.state_dict</code>()</p>
+<h4 id="OptimizerInterface.state_dict" class="doc_header"><code>OptimizerInterface.state_dict</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L57" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>OptimizerInterface.state_dict</code>()</p>
 </blockquote>
 <p>Passthrough to state dict</p>
 
@@ -333,7 +295,7 @@ nb_path: "nbs/01_prepare.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="OptimizerInterface.step" class="doc_header"><code>OptimizerInterface.step</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L64" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>OptimizerInterface.step</code>(<strong><code>closure</code></strong>=<em><code>None</code></em>)</p>
+<h4 id="OptimizerInterface.step" class="doc_header"><code>OptimizerInterface.step</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L65" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>OptimizerInterface.step</code>(<strong><code>closure</code></strong>=<em><code>None</code></em>)</p>
 </blockquote>
 <p>Passthrough unless on TPU then calls the right stepper</p>
 
@@ -358,7 +320,7 @@ nb_path: "nbs/01_prepare.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="OptimizerInterface.zero_grad" class="doc_header"><code>OptimizerInterface.zero_grad</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L60" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>OptimizerInterface.zero_grad</code>()</p>
+<h4 id="OptimizerInterface.zero_grad" class="doc_header"><code>OptimizerInterface.zero_grad</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L61" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>OptimizerInterface.zero_grad</code>()</p>
 </blockquote>
 <p>Passthrough to zero_grad</p>
 
@@ -383,7 +345,7 @@ nb_path: "nbs/01_prepare.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="SchedulerInterface" class="doc_header"><code>class</code> <code>SchedulerInterface</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L77" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>SchedulerInterface</code>(<strong><code>scheduler</code></strong>, <strong><code>num_processes</code></strong>)</p>
+<h2 id="SchedulerInterface" class="doc_header"><code>class</code> <code>SchedulerInterface</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L78" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>SchedulerInterface</code>(<strong><code>scheduler</code></strong>, <strong><code>num_processes</code></strong>)</p>
 </blockquote>
 <p>Wrapper to step the scheduler the right number of times</p>
 
@@ -408,8 +370,9 @@ nb_path: "nbs/01_prepare.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="SchedulerInterface.step" class="doc_header"><code>SchedulerInterface.step</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L83" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>SchedulerInterface.step</code>(<strong>*<code>args</code></strong>, <strong>**<code>kwargs</code></strong>)</p>
+<h4 id="SchedulerInterface.step" class="doc_header"><code>SchedulerInterface.step</code><a href="https://github.com/muellerzr/pytorch-benchmark/pytorch_benchmark/prepare.py#L84" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>SchedulerInterface.step</code>(<strong>*<code>args</code></strong>, <strong>**<code>kwargs</code></strong>)</p>
 </blockquote>
+<p>Passthrough to <code>scheduler.step</code> but will also step the right number of times</p>
 
 </div>
 
@@ -422,5 +385,5 @@ nb_path: "nbs/01_prepare.ipynb"
     {% endraw %}
 
 </div>
-
+ 
 
