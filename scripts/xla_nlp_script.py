@@ -6,17 +6,20 @@ from fastcore.script import call_parse
 from aim import Run
 
 import yaml
+from pathlib import Path
 
 import torch
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 
+from huggingface_hub import Repository
+
 from datasets import load_dataset
 from evaluate import load as load_metric 
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, get_linear_schedule_with_warmup
 
-from accelerate.utils import set_seed
+from accelerate.utils import set_seed, extract_model_from_parallel, wait_for_everyone, save
 from accelerate.utils.operations import _tpu_gather 
 
 import torch_xla.core.xla_model as xm
@@ -29,6 +32,9 @@ DATASET = "mrpc"
 METRIC = "glue"
 SEED = 108
 IS_LOCAL_PROCESS = xm.get_local_ordinal()
+
+HUB_STR_TEMPLATE = "muellerzr/bert-base-cased-tpu-accelerate-experiments"
+BASE_DIR = HUB_STR_TEMPLATE.split("/")[1].replace("-", "_")
 
 """
 Configuration Parameters:
@@ -119,7 +125,7 @@ def get_dataloaders(batch_size:int=16, eval_batch_size:int=32):
         sampler=eval_sampler
     )
 
-    return train_dataloader, eval_dataloader
+    return train_dataloader, eval_dataloader, tokenizer
 
 """ 
 Example config:
@@ -149,11 +155,12 @@ def main(
         torch.set_default_tensor_type("torch.FloatTensor")
     
     metric = load_metric(METRIC, DATASET)
-    device - xm.xla_device()
+    device = xm.xla_device()
 
     for iteration in range(num_iterations):
+        save_dir = f'{BASE_DIR}_{Path(config_file).name}_{iteration}'
         if IS_LOCAL_PROCESS:
-            run = Run(repo="torch_xla")
+            run = Run(repo=f"~/{save_dir}")
             run['hparams'] = {
                 **config,
                 "iteration":iteration,
@@ -161,7 +168,7 @@ def main(
             }
         set_seed(seed)
 
-        train_dataloader, eval_dataloader = get_dataloaders()
+        train_dataloader, eval_dataloader, tokenizer = get_dataloaders()
         train_dataloader = pl.MpDeviceLoader(train_dataloader, device) 
         eval_dataloader = pl.MpDeviceLoader(eval_dataloader, device)
 
@@ -186,7 +193,7 @@ def main(
                     run.track(loss.item(), name="train_loss", epoch=epoch, context={"subset":"train"})
                 loss.backward()
                 xm.optimizer_step(optimizer)
-                lr_scheduler.step() 
+                scheduler.step() 
                 optimizer.zero_grad()
             
             model.eval()
@@ -212,3 +219,18 @@ def main(
                     run.track(value, name=metric, epoch=epoch, context={"subset":"validation"})
 
         seed += 100*iteration
+        wait_for_everyone()
+        repo = Repository(
+            local_dir=save_dir,
+            clone_from=f'{HUB_STR_TEMPLATE}',
+            revision=f"{Path(config_file).name}-{iteration}",
+            use_auth_token=True
+        )
+        with repo.commit(commit_message=f"Uploading experiment {Path(config_file).name}"):
+            unwrapped_model = extract_model_from_parallel(model)
+            unwrapped_model.save_pretrained(
+                save_dir, is_main_process=IS_LOCAL_PROCESS, save_function=save
+            )
+            if IS_LOCAL_PROCESS:
+                tokenizer.save_pretrained(save_dir)
+        repo.push_to_hub(commit_message="End of training, uploading logs", auto_lfs_prune=True)
