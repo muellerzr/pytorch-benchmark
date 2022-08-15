@@ -83,6 +83,8 @@ def get_dataloaders(batch_size:int=16, eval_batch_size:int=32):
         remove_columns=["idx", "sentence1", "sentence2"]
     )
 
+    tokenized_datasets = tokenized_datasets.rename_column("label", "labels")
+
     def collate_fn(examples):
         # On TPU you should pad everything to be the same length
         return tokenizer.pad(
