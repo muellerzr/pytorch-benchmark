@@ -23,7 +23,7 @@ from accelerate.utils import set_seed, extract_model_from_parallel, wait_for_eve
 from accelerate.utils.operations import _tpu_gather 
 
 import torch_xla.core.xla_model as xm
-import torch_xla.distributed.parallel_laoder as pl
+import torch_xla.distributed.parallel_loader as pl
 import torch_xla.distributed.xla_multiprocessing as xmp
 import torch_xla.utils.serialization as xser
 
@@ -183,6 +183,8 @@ def main(
             num_training_steps=(len(train_dataloader) * 3)
         )
 
+        xm.master_print(f'Starting training...')
+
         for epoch in range(3):
             model.train()
             for step, batch in enumerate(train_dataloader):
@@ -217,6 +219,7 @@ def main(
             if IS_LOCAL_PROCESS:
                 for metric, value in eval_metrics.items():
                     run.track(value, name=metric, epoch=epoch, context={"subset":"validation"})
+                xm.master_print(f'Epoch {epoch} complete...')
 
         seed += 100*iteration
         wait_for_everyone()
