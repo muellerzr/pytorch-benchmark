@@ -164,7 +164,7 @@ def main(
 
     for iteration in range(num_iterations):
         if IS_LOCAL_PROCESS:
-            run = Run(repo=BASE_DIR, experiment=f'{Path(config_file).name}_{iteration}')
+            run = Run(repo=".", experiment=f'{Path(config_file).name}_{iteration}')
             run['hparams'] = {
                 **config,
                 "iteration":iteration,
