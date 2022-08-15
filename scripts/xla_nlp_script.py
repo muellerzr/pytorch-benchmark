@@ -164,9 +164,9 @@ def main(
             run['hparams'] = {
                 **config,
                 "iteration":iteration,
-                "seed":seed,
+                "seed":SEED,
             }
-        set_seed(seed)
+        set_seed(SEED)
 
         train_dataloader, eval_dataloader, tokenizer = get_dataloaders()
         train_dataloader = pl.MpDeviceLoader(train_dataloader, device) 
@@ -221,7 +221,7 @@ def main(
                     run.track(value, name=metric, epoch=epoch, context={"subset":"validation"})
                 xm.master_print(f'Epoch {epoch} complete...')
 
-        seed += 100*iteration
+        SEED += 100*iteration
         wait_for_everyone()
         repo = Repository(
             local_dir=save_dir,
