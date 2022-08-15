@@ -228,17 +228,18 @@ def main(
         SEED += 100*iteration
         # wait for everyone TPU specific
         xm.rendezvous("accelerate.utils.wait_for_everyone")
-        repo = Repository(
-            local_dir=BASE_DIR,
-            clone_from=HUB_STR_TEMPLATE,
-            revision=f"{Path(config_file).name}-{iteration}",
-            use_auth_token=True
-        )
-        with repo.commit(commit_message=f"Uploading experiment {Path(config_file).name}"):
-            unwrapped_model = extract_model_from_parallel(model)
-            unwrapped_model.save_pretrained(
-                BASE_DIR, is_main_process=IS_LOCAL_PROCESS, save_function=save
+        if IS_LOCAL_PROCESS:
+            repo = Repository(
+                local_dir=BASE_DIR,
+                clone_from=HUB_STR_TEMPLATE,
+                revision=f"{Path(config_file).name}-{iteration}",
+                use_auth_token=True
             )
-            if IS_LOCAL_PROCESS:
+            with repo.commit(commit_message=f"Uploading experiment {Path(config_file).name}"):
+                unwrapped_model = extract_model_from_parallel(model)
+                unwrapped_model.save_pretrained(
+                    BASE_DIR, is_main_process=IS_LOCAL_PROCESS, save_function=save
+                )
                 tokenizer.save_pretrained(BASE_DIR)
-        repo.push_to_hub(commit_message="End of training, uploading logs", auto_lfs_prune=True)
+            repo.push_to_hub(commit_message="End of training, uploading logs", auto_lfs_prune=True)
+        xm.rendezvous("accelerate.utils.wait_for_everyone")
