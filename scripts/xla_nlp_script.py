@@ -163,7 +163,6 @@ def main(
     IS_LOCAL_PROCESS = xm.get_local_ordinal()
 
     for iteration in range(num_iterations):
-        save_dir = f'{BASE_DIR}_{Path(config_file).name}_{iteration}'
         if IS_LOCAL_PROCESS:
             run = Run(repo=BASE_DIR, experiment=f'{Path(config_file).name}_{iteration}')
             run['hparams'] = {
@@ -230,16 +229,16 @@ def main(
         # wait for everyone TPU specific
         xm.rendezvous("accelerate.utils.wait_for_everyone")
         repo = Repository(
-            local_dir=save_dir,
-            clone_from=f'{HUB_STR_TEMPLATE}',
+            local_dir=BASE_DIR,
+            clone_from=HUB_STR_TEMPLATE,
             revision=f"{Path(config_file).name}-{iteration}",
             use_auth_token=True
         )
         with repo.commit(commit_message=f"Uploading experiment {Path(config_file).name}"):
             unwrapped_model = extract_model_from_parallel(model)
             unwrapped_model.save_pretrained(
-                save_dir, is_main_process=IS_LOCAL_PROCESS, save_function=save
+                BASE_DIR, is_main_process=IS_LOCAL_PROCESS, save_function=save
             )
             if IS_LOCAL_PROCESS:
-                tokenizer.save_pretrained(save_dir)
+                tokenizer.save_pretrained(BASE_DIR)
         repo.push_to_hub(commit_message="End of training, uploading logs", auto_lfs_prune=True)
