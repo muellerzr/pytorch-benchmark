@@ -31,7 +31,6 @@ MODEL = "bert-base-cased"
 DATASET = "mrpc"
 METRIC = "glue"
 SEED = 108
-IS_LOCAL_PROCESS = xm.get_local_ordinal()
 
 HUB_STR_TEMPLATE = "muellerzr/bert-base-cased-tpu-accelerate-experiments"
 BASE_DIR = HUB_STR_TEMPLATE.split("/")[1].replace("-", "_")
@@ -156,6 +155,7 @@ def main(
     
     metric = load_metric(METRIC, DATASET)
     device = xm.xla_device()
+    IS_LOCAL_PROCESS = xm.get_local_ordinal()
 
     for iteration in range(num_iterations):
         save_dir = f'{BASE_DIR}_{Path(config_file).name}_{iteration}'
