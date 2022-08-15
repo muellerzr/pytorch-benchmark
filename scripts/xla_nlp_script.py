@@ -67,7 +67,7 @@ def get_dataloaders(batch_size:int=16, eval_batch_size:int=32):
     DATASET = "mrpc"
     METRIC = "glue"
     tokenizer = AutoTokenizer.from_pretrained(MODEL)
-    datasets = load_dataset(DATASET, METRIC)
+    datasets = load_dataset(METRIC, DATASET)
 
     def tokenize_function(examples):
         return tokenizer(
