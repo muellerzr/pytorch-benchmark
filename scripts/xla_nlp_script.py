@@ -227,7 +227,8 @@ def main(
                 xm.master_print(f'Epoch {epoch} complete...')
 
         SEED += 100*iteration
-        wait_for_everyone()
+        # wait for everyone TPU specific
+        xm.rendezvous("accelerate.utils.wait_for_everyone")
         repo = Repository(
             local_dir=save_dir,
             clone_from=f'{HUB_STR_TEMPLATE}',
