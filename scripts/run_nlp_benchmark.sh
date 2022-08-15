@@ -16,5 +16,6 @@
 # TPU
 echo "Runing TPU scripts..."
 for config in configs/baseline_nlp/*.yml; do
+    !rm -r bert_base_cased_tpu_accelerate_experiments
     accelerate launch xla_nlp_script.py "$config"
 done
