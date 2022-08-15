@@ -222,8 +222,8 @@ def main(
                 )
             eval_metrics = metric.compute()
             if IS_LOCAL_PROCESS:
-                for metric, value in eval_metrics.items():
-                    run.track(value, name=metric, epoch=epoch, context={"subset":"validation"})
+                for met, value in eval_metrics.items():
+                    run.track(value, name=met, epoch=epoch, context={"subset":"validation"})
                 xm.master_print(f'Epoch {epoch} complete...')
 
         SEED += 100*iteration
