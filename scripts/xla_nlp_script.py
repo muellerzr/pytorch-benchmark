@@ -27,13 +27,6 @@ import torch_xla.distributed.parallel_loader as pl
 import torch_xla.distributed.xla_multiprocessing as xmp
 import torch_xla.utils.serialization as xser
 
-MODEL = "bert-base-cased"
-DATASET = "mrpc"
-METRIC = "glue"
-SEED = 108
-
-HUB_STR_TEMPLATE = "muellerzr/bert-base-cased-tpu-accelerate-experiments"
-BASE_DIR = HUB_STR_TEMPLATE.split("/")[1].replace("-", "_")
 
 """
 Configuration Parameters:
@@ -70,6 +63,9 @@ def get_dataloaders(batch_size:int=16, eval_batch_size:int=32):
         eval_batch_size (`int`, *optional*, defaults to 32):
             Eval dataloader batch size
     """
+    MODEL = "bert-base-cased"
+    DATASET = "mrpc"
+    METRIC = "glue"
     tokenizer = AutoTokenizer.from_pretrained(MODEL)
     datasets = load_dataset(DATASET, METRIC)
 
@@ -142,6 +138,13 @@ def main(
     config_file:str, # Location of the config file
     num_iterations:int = 3, # Number of times to run the benchmark
 ):
+    MODEL = "bert-base-cased"
+    DATASET = "mrpc"
+    METRIC = "glue"
+    SEED = 108
+
+    HUB_STR_TEMPLATE = "muellerzr/bert-base-cased-tpu-accelerate-experiments"
+    BASE_DIR = HUB_STR_TEMPLATE.split("/")[1].replace("-", "_")
     with open(config_file, "r") as stream:
         config = yaml.safe_load(stream)
     for key, value in config.items():
