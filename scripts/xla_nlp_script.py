@@ -164,7 +164,7 @@ def main(
 
     for iteration in range(num_iterations):
         if IS_LOCAL_PROCESS:
-            run = Run(repo=".", experiment=f'{Path(config_file).name}_{iteration}')
+            run = Run(repo=".", experiment=f'{Path(config_file).name.name.split(".")[0]}_{iteration}')
             run['hparams'] = {
                 **config,
                 "iteration":iteration,
@@ -232,10 +232,10 @@ def main(
             repo = Repository(
                 local_dir=BASE_DIR,
                 clone_from=HUB_STR_TEMPLATE,
-                revision=f"{Path(config_file).name}-{iteration}",
+                revision=f"{Path(config_file).name.split('.')[0]}-{iteration}",
                 use_auth_token=True
             )
-            with repo.commit(commit_message=f"Uploading experiment {Path(config_file).name}"):
+            with repo.commit(commit_message=f"{Path(config_file).name.split('.')[0]}-{iteration}"):
                 unwrapped_model = extract_model_from_parallel(model)
                 unwrapped_model.save_pretrained(
                     BASE_DIR, is_main_process=IS_LOCAL_PROCESS, save_function=save
