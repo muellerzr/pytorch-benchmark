@@ -160,7 +160,7 @@ def main(
     
     metric = load_metric(METRIC, DATASET)
     device = xm.xla_device()
-    IS_LOCAL_PROCESS = xm.get_local_ordinal()
+    IS_LOCAL_PROCESS = xm.is_master_ordinal(False)
 
     for iteration in range(num_iterations):
         if IS_LOCAL_PROCESS:
@@ -226,22 +226,23 @@ def main(
                 xm.master_print(f'Epoch {epoch} complete...')
 
         SEED += 100*iteration
+        unwrapped_model = extract_model_from_parallel(model)
         # wait for everyone TPU specific
         xm.rendezvous("accelerate.utils.wait_for_everyone")
         if IS_LOCAL_PROCESS:
             repo = Repository(
-                BASE_DIR,
+                "bert_base_cased_tpu_accelerate_experiments",
                 HUB_STR_TEMPLATE,
-                use_auth_token=True
+                use_auth_token=True,
+                revision=f"{Path(config_file).name.split('.')[0]}"
             )
-            with repo.commit(
-                commit_message=f"{Path(config_file).name.split('.')[0]}-{iteration}",
-                branch=Path(config_file).name.split(".")[0]
-            ):
-                unwrapped_model = extract_model_from_parallel(model)
-                unwrapped_model.save_pretrained(
-                    ".", is_main_process=IS_LOCAL_PROCESS, save_function=save
-                )
-                tokenizer.save_pretrained(".")
+        xm.rendezvous("creating repo")
+        unwrapped_model.save_pretrained(
+            "bert_base_cased_tpu_accelerate_experiments", is_main_process=IS_LOCAL_PROCESS, save_function=xm.save
+        )
+        if IS_LOCAL_PROCESS:
+            tokenizer.save_pretrained("bert_base_cased_tpu_accelerate_experiments")
+            repo.git_add(auto_lfs_track=True)
+            repo.git_commit(f"{Path(config_file).name.split('.')[0]}-{iteration}")
             repo.git_push(upstream=f'origin {Path(config_file).name.split(".")[0]}')
-        xm.rendezvous("accelerate.utils.wait_for_everyone")
+        xm.rendezvous("upload to git")
