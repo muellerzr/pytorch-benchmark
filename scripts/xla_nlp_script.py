@@ -161,17 +161,28 @@ def main(
     metric = load_metric(METRIC, DATASET)
     device = xm.xla_device()
     IS_LOCAL_PROCESS = xm.is_master_ordinal(False)
+    if IS_LOCAL_PROCESS:
+        repo = Repository(
+            "bert_base_cased_tpu_accelerate_experiments",
+            HUB_STR_TEMPLATE,
+            use_auth_token=True,
+        )
+    xm.rendezvous("creating repo")
 
     for iteration in range(num_iterations):
+        SEED += (1000*iteration)
+        set_seed(SEED)
         if IS_LOCAL_PROCESS:
-            run = Run(repo=".", experiment=f'{Path(config_file).name.split(".")[0]}_{iteration}')
+            repo.git_checkout("main")
+            experiment = f'{Path(config_file).name.split(".")[0]}-iteration-{iteration}'
+            repo.git_checkout(experiment, create_branch_ok=True)
+            run = Run(repo=".", experiment=f'{experiment}_iteration')
             run['hparams'] = {
                 **config,
                 "iteration":iteration,
                 "seed":SEED,
             }
-        set_seed(SEED)
-
+        
         train_dataloader, eval_dataloader, tokenizer = get_dataloaders()
         train_dataloader = pl.MpDeviceLoader(train_dataloader, device) 
         eval_dataloader = pl.MpDeviceLoader(eval_dataloader, device)
@@ -225,24 +236,18 @@ def main(
                     run.track(value, name=met, epoch=epoch, context={"subset":"validation"})
                 xm.master_print(f'Epoch {epoch} complete...')
 
-        SEED += 100*iteration
         unwrapped_model = extract_model_from_parallel(model)
         # wait for everyone TPU specific
         xm.rendezvous("accelerate.utils.wait_for_everyone")
-        if IS_LOCAL_PROCESS:
-            repo = Repository(
-                "bert_base_cased_tpu_accelerate_experiments",
-                HUB_STR_TEMPLATE,
-                use_auth_token=True,
-                revision=f"{Path(config_file).name.split('.')[0]}"
-            )
-        xm.rendezvous("creating repo")
         unwrapped_model.save_pretrained(
             "bert_base_cased_tpu_accelerate_experiments", is_main_process=IS_LOCAL_PROCESS, save_function=xm.save
         )
+        xm.rendezvous("save model")
         if IS_LOCAL_PROCESS:
             tokenizer.save_pretrained("bert_base_cased_tpu_accelerate_experiments")
+        xm.rendezvous("save tokenizer")
+        if IS_LOCAL_PROCESS:
             repo.git_add(auto_lfs_track=True)
-            repo.git_commit(f"{Path(config_file).name.split('.')[0]}-{iteration}")
-            repo.git_push(upstream=f'origin {Path(config_file).name.split(".")[0]}')
+            repo.git_commit(f'{experiment}_iteration_{iteration}')
+            repo.git_push(upstream=f'origin {Path(config_file).name.split(".")[0]}-iteration-{iteration}')
         xm.rendezvous("upload to git")
