@@ -230,16 +230,18 @@ def main(
         xm.rendezvous("accelerate.utils.wait_for_everyone")
         if IS_LOCAL_PROCESS:
             repo = Repository(
-                local_dir=BASE_DIR,
-                clone_from=HUB_STR_TEMPLATE,
-                revision=f"{Path(config_file).name.split('.')[0]}-{iteration}",
+                BASE_DIR,
+                HUB_STR_TEMPLATE,
                 use_auth_token=True
             )
-            with repo.commit(commit_message=f"{Path(config_file).name.split('.')[0]}-{iteration}"):
+            with repo.commit(
+                commit_message=f"{Path(config_file).name.split('.')[0]}-{iteration}",
+                branch=Path(config_file).name.split(".")[0]
+            ):
                 unwrapped_model = extract_model_from_parallel(model)
                 unwrapped_model.save_pretrained(
-                    BASE_DIR, is_main_process=IS_LOCAL_PROCESS, save_function=save
+                    ".", is_main_process=IS_LOCAL_PROCESS, save_function=save
                 )
-                tokenizer.save_pretrained(BASE_DIR)
-            repo.push_to_hub(commit_message="End of training, uploading logs", auto_lfs_prune=True)
+                tokenizer.save_pretrained(".")
+            repo.git_push(upstream=f'origin {Path(config_file).name.split(".")[0]}')
         xm.rendezvous("accelerate.utils.wait_for_everyone")
