@@ -167,6 +167,7 @@ def main(
             HUB_STR_TEMPLATE,
             use_auth_token=True,
         )
+        repo.git_checkout("main")
     xm.rendezvous("creating repo")
 
     for iteration in range(num_iterations):
