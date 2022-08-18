@@ -173,10 +173,9 @@ def main(
         SEED += (1000*iteration)
         set_seed(SEED)
         if IS_LOCAL_PROCESS:
-            repo.git_checkout("main")
-            experiment = f'{Path(config_file).name.split(".")[0]}-iteration-{iteration}'
+            experiment = f'{Path(config_file).name.split(".")[0]}'
             repo.git_checkout(experiment, create_branch_ok=True)
-            run = Run(repo=".", experiment=f'{experiment}_iteration')
+            run = Run(repo=".", experiment=f'{experiment}_iteration_{iteration}')
             run['hparams'] = {
                 **config,
                 "iteration":iteration,
@@ -189,6 +188,9 @@ def main(
 
         model = AutoModelForSequenceClassification.from_pretrained(MODEL, return_dict=True)
         model = xmp.MpModelWrapper(model).to(device)
+
+        if hasattr(model, "tie_weights"):
+            model.tie_weights()
 
         optimizer = AdamW(params=model.parameters(), lr=config["lr"])
 
@@ -249,5 +251,5 @@ def main(
         if IS_LOCAL_PROCESS:
             repo.git_add(auto_lfs_track=True)
             repo.git_commit(f'{experiment}_iteration_{iteration}')
-            repo.git_push(upstream=f'origin {Path(config_file).name.split(".")[0]}-iteration-{iteration}')
+            repo.git_push(upstream=f'origin {Path(config_file).name.split(".")[0]}')
         xm.rendezvous("upload to git")
