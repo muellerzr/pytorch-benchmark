@@ -19,7 +19,7 @@ from datasets import load_dataset
 from evaluate import load as load_metric 
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, get_linear_schedule_with_warmup
 
-from accelerate import Accelerator
+from accelerate import Accelerator, DistributedType
 
 from accelerate.utils import set_seed, extract_model_from_parallel, wait_for_everyone, save
 from accelerate.utils.operations import _tpu_gather 
@@ -55,7 +55,7 @@ How each one relates:
 """
 
 
-def get_dataloaders(batch_size:int=16, eval_batch_size:int=32):
+def get_dataloaders(accelerator:Accelerator, batch_size:int=16, eval_batch_size:int=32):
     """Creates a set of `Dataloader`s for the `glue` dataset,
     using "bert-base-cased" as the tokenizer
 
@@ -72,56 +72,35 @@ def get_dataloaders(batch_size:int=16, eval_batch_size:int=32):
     datasets = load_dataset(METRIC, DATASET)
 
     def tokenize_function(examples):
-        return tokenizer(
-            examples["sentence1"], 
-            examples["sentence2"],
-            truncation=True,
-            max_length=None
+        # max_length=None => use the model max length (it's actually the default)
+        outputs = tokenizer(examples["sentence1"], examples["sentence2"], truncation=True, max_length=None)
+        return outputs
+
+    # Apply the method we just defined to all the examples in all the splits of the dataset
+    # starting with the main process first:
+    with accelerator.main_process_first():
+        tokenized_datasets = datasets.map(
+            tokenize_function,
+            batched=True,
+            remove_columns=["idx", "sentence1", "sentence2"],
         )
 
-    tokenized_datasets = datasets.map(
-        tokenize_function,
-        batched=True,
-        remove_columns=["idx", "sentence1", "sentence2"]
-    )
-
+    # We also rename the 'label' column to 'labels' which is the expected name for labels by the models of the
+    # transformers library
     tokenized_datasets = tokenized_datasets.rename_column("label", "labels")
 
     def collate_fn(examples):
-        # On TPU you should pad everything to be the same length
-        return tokenizer.pad(
-            examples, 
-            padding="max_length", 
-            max_length=128, 
-            return_tensors="pt"
-        )
-    
-    train_sampler = DistributedSampler(
-        tokenized_datasets["train"],
-        num_replicas=xm.xrt_world_size(),
-        rank=xm.get_ordinal(),
-        shuffle=True
-    )
+        # On TPU it's best to pad everything to the same length or training will be very slow.
+        if accelerator.distributed_type == DistributedType.TPU:
+            return tokenizer.pad(examples, padding="max_length", max_length=128, return_tensors="pt")
+        return tokenizer.pad(examples, padding="longest", return_tensors="pt")
 
-    eval_sampler = DistributedSampler(
-        tokenized_datasets["validation"],
-        num_replicas=xm.xrt_world_size(),
-        rank=xm.get_ordinal(),
-        shuffle=False
-    )
-
+    # Instantiate dataloaders.
     train_dataloader = DataLoader(
-        tokenized_datasets["train"],
-        collate_fn=collate_fn,
-        batch_size=batch_size,
-        sampler=train_sampler
+        tokenized_datasets["train"], shuffle=True, collate_fn=collate_fn, batch_size=batch_size
     )
-
     eval_dataloader = DataLoader(
-        tokenized_datasets["validation"],
-        collate_fn=collate_fn,
-        batch_size=eval_batch_size,
-        sampler=eval_sampler
+        tokenized_datasets["validation"], shuffle=False, collate_fn=collate_fn, batch_size=eval_batch_size
     )
 
     return train_dataloader, eval_dataloader, tokenizer
@@ -187,7 +166,7 @@ def main(
                 "script":experiment,
             }
         
-        train_dataloader, eval_dataloader, tokenizer = get_dataloaders()
+        train_dataloader, eval_dataloader, tokenizer = get_dataloaders(accelerator)
 
         model = AutoModelForSequenceClassification.from_pretrained(MODEL, return_dict=True)
 
