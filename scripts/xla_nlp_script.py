@@ -181,6 +181,7 @@ def main(
                 **config,
                 "iteration":iteration,
                 "seed":SEED,
+                "script":experiment,
             }
         
         train_dataloader, eval_dataloader, tokenizer = get_dataloaders()
@@ -210,7 +211,7 @@ def main(
                 outputs = model(**batch)
                 loss = outputs.loss
                 if IS_LOCAL_PROCESS:
-                    run.track(loss.item(), name="train_loss", epoch=epoch, context={"subset":"train"})
+                    run.track(loss.item(), name="train_loss", epoch=epoch, context={"subset":"train", "script":experiment})
                 loss.backward()
                 xm.optimizer_step(optimizer)
                 scheduler.step() 
@@ -236,7 +237,7 @@ def main(
             eval_metrics = metric.compute()
             if IS_LOCAL_PROCESS:
                 for met, value in eval_metrics.items():
-                    run.track(value, name=met, epoch=epoch, context={"subset":"validation"})
+                    run.track(value, name=met, epoch=epoch, context={"subset":"validation", "script":experiment})
                 xm.master_print(f'Epoch {epoch} complete...')
 
         unwrapped_model = extract_model_from_parallel(model)
