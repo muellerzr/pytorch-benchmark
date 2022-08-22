@@ -169,6 +169,7 @@ def main(
         train_dataloader, eval_dataloader, tokenizer = get_dataloaders(accelerator)
 
         model = AutoModelForSequenceClassification.from_pretrained(MODEL, return_dict=True)
+        model = model.to(accelerator.device)
 
         optimizer = AdamW(params=model.parameters(), lr=config["lr"])
 
