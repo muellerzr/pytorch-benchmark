@@ -147,7 +147,7 @@ def main(
     METRIC = "glue"
     SEED = 108
 
-    HUB_STR_TEMPLATE = "muellerzr/bert-base-cased-tpu-accelerate-experiments"
+    HUB_STR_TEMPLATE = "muellerzr/bert-base-cased-tpu-experiments-accelerate"
     BASE_DIR = HUB_STR_TEMPLATE.split("/")[1].replace("-", "_")
     with open(config_file, "r") as stream:
         config = yaml.safe_load(stream)
