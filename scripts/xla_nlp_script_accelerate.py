@@ -165,6 +165,7 @@ def main(
                 "seed":SEED,
                 "script":experiment,
             }
+        wait_for_everyone()
         
         train_dataloader, eval_dataloader, tokenizer = get_dataloaders(accelerator)
 
@@ -195,6 +196,7 @@ def main(
                 loss = outputs.loss
                 if accelerator.is_local_main_process:
                     run.track(loss.item(), name="train_loss", epoch=epoch, context={"subset":"train", "script":experiment})
+                wait_for_everyone()
                 accelerator.backward(loss)
                 optimizer.step()
                 scheduler.step() 
@@ -215,19 +217,20 @@ def main(
                 for met, value in eval_metrics.items():
                     run.track(value, name=met, epoch=epoch, context={"subset":"validation", "script":experiment})
                 xm.master_print(f'Epoch {epoch} complete...')
+            wait_for_everyone()
 
         unwrapped_model = extract_model_from_parallel(model)
         # wait for everyone TPU specific
         xm.rendezvous("accelerate.utils.wait_for_everyone")
         unwrapped_model.save_pretrained(
-            "bert_base_cased_tpu_accelerate_experiments", is_main_process=accelerator.is_local_main_process, save_function=xm.save
+            "bert_base_cased_tpu_accelerate_experiments", is_main_process=accelerator.is_local_main_process, save_function=save
         )
-        xm.rendezvous("save model")
         if accelerator.is_local_main_process:
             tokenizer.save_pretrained("bert_base_cased_tpu_accelerate_experiments")
-        xm.rendezvous("save tokenizer")
+        wait_for_everyone()
         if accelerator.is_local_main_process:
             repo.git_add(auto_lfs_track=True)
             repo.git_commit(f'{experiment}_iteration_{iteration}')
             repo.git_push(upstream=f'origin {Path(config_file).name.split(".")[0]}')
+        wait_for_everyone()
         xm.rendezvous("upload to git")
