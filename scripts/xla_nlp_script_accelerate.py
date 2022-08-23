@@ -203,7 +203,7 @@ def main(
         )
 
         model, optimizer, scheduler = accelerator.prepare(
-            train_dataloader, eval_dataloader, model, optimizer, scheduler
+            model, optimizer, scheduler
         )
 
         if hasattr(model, "tie_weights"):
