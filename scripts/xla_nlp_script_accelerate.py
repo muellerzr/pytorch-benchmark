@@ -253,6 +253,6 @@ def main(
         if accelerator.is_local_main_process:
             repo.git_add(auto_lfs_track=True)
             repo.git_commit(f'{experiment}_iteration_{iteration}')
-            repo.git_push(upstream=f'origin {Path(config_file).name.split(".")[0]}')
+            repo.git_push(upstream=f'origin {experiment}')
         wait_for_everyone()
         xm.rendezvous("upload to git")
