@@ -214,6 +214,7 @@ def main(
         for epoch in range(3):
             model.train()
             for batch in train_dataloader:
+                batch.to(accelerator.device)
                 outputs = model(**batch)
                 loss = outputs.loss
                 if accelerator.is_local_main_process:
