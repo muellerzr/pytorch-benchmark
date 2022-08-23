@@ -202,7 +202,7 @@ def main(
             num_training_steps=(len(train_dataloader) * 3)
         )
 
-        train_dataloader, eval_dataloader, model, optimizer, scheduler = accelerator.prepare(
+        model, optimizer, scheduler = accelerator.prepare(
             train_dataloader, eval_dataloader, model, optimizer, scheduler
         )
 
