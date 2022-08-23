@@ -239,6 +239,7 @@ def main(
                 for met, value in eval_metrics.items():
                     run.track(value, name=met, epoch=epoch, context={"subset":"validation", "script":experiment})
                 xm.master_print(f'Epoch {epoch} complete...')
+                xm.master_print(f'Metrics: {eval_metrics}')
             wait_for_everyone()
 
         unwrapped_model = extract_model_from_parallel(model)
