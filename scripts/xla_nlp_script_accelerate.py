@@ -189,7 +189,7 @@ def main(
             }
         wait_for_everyone()
         
-        train_dataloader, eval_dataloader, tokenizer = get_dataloaders(accelerator)
+        train_dataloader, eval_dataloader, tokenizer = get_dataloaders()
 
         model = AutoModelForSequenceClassification.from_pretrained(MODEL, return_dict=True)
         model = model.to(accelerator.device)
